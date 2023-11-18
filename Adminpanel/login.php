@@ -1,7 +1,54 @@
 <?php
 session_start();
-require "../koneksi.php"
+require "../koneksi.php";
+
+class Login {
+  private $con;
+
+  public function __construct($connection) {
+    $this->con = $connection;
+  }
+
+  public function prosesLogin($username, $password) {
+    $query = mysqli_query($this->con, "SELECT * FROM users WHERE username='$username'");
+    $countdata = mysqli_num_rows($query);
+    $data = mysqli_fetch_array($query);
+
+    if ($countdata > 0) {
+      if (password_verify($password, $data['password'])) {
+        $_SESSION['username'] = $data['username'];
+        $_SESSION['login'] = true;
+        header('location: ../Adminpanel');
+        exit;
+      } else {
+        return "password salah";
+      }
+    } else {
+      return "Akun tidak tersedia";
+    }
+  }
+}
+$login = new Login($con);
+if (isset($_POST['submit'])) {
+  $username = htmlspecialchars($_POST['username']);
+  $password = htmlspecialchars($_POST['password']);
+
+  $result = $login->prosesLogin($username, $password);
+
+  if ($result === "password salah" || $result === "Akun tidak tersedia") {
 ?>
+    <div class="mt-3 text-center" style="width: 325px;">
+      <div class="alert alert-warning" role="alert">
+        <?= $result ?>
+      </div>
+    </div>
+<?php
+  }
+}
+?>
+
+<!-- HTML remains the same -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

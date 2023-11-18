@@ -1,5 +1,32 @@
 <?php
 include('../koneksi.php');
+
+class Product {
+  private $con;
+
+  public function __construct($connection) {
+    $this->con = $connection;
+  }
+
+  public function getProducts() {
+    $query = "SELECT * FROM products";
+    $result = mysqli_query($this->con, $query);
+
+    if (!$result) {
+      die("Query error: " . mysqli_error($this->con));
+    }
+
+    $produk = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+      $produk[] = $row;
+    }
+
+    return $produk;
+  }
+}
+
+$productObj = new Product($con);
+$products = $productObj->getProducts();
 ?>
 
 <!DOCTYPE html>
@@ -56,23 +83,7 @@ include('../koneksi.php');
       <!-- Main content -->
       <div class="row row-cols-1 row-cols-md-4 g-4 m-1">
         <?php
-        //Eksekusi query SQL
-        $query = "SELECT * FROM products";
-
-        $result = mysqli_query($con, $query);
-
-        if (!$result) {
-          die("Query error: " . mysqli_error($con));
-        }
-
-        //Ambil hasil query dan simpan dalam array produk
-        $produk = [];
-        while ($row = mysqli_fetch_assoc($result)) {
-          $produk[] = $row;
-        }
-
-        // Loop untuk menampilkan produk
-        foreach ($produk as $item) {
+        foreach ($products as $item) {
         ?>
           <div class="col mt-1">
             <div class="card h-100">
@@ -95,8 +106,7 @@ include('../koneksi.php');
             </div>
           </div>
         <?php
-        } // Akhir loop produk
-        mysqli_close($con);
+        }
         ?>
       </div>
       <!-- /.content -->
